@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/luis/MyGit/CG/Preparation for practical classes/code/main.cpp
+GLUT/glut.h
+-
+GL/glut.h
+-
+math.h
+-
+chrono
+-
+
