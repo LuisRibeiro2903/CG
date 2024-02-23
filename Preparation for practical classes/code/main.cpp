@@ -59,6 +59,7 @@ int main(int argc, char** argv)
 {
 	// put GLUT�s init here
 	glutInit(&argc, argv);
+
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(550, 150);
 	glutInitWindowSize(800, 800);
@@ -66,8 +67,8 @@ int main(int argc, char** argv)
 	
 	// put callback registry here
 	glutReshapeFunc(changeSize);
-	glutIdleFunc(renderScene);
 	glutDisplayFunc(renderScene);
+	glutIdleFunc(renderScene);
 	
 	// some OpenGL settings
 	glEnable(GL_DEPTH_TEST);
