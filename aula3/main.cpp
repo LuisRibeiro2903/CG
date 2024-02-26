@@ -6,6 +6,7 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <stdio.h>
 
 int slices = 10;
 
@@ -69,6 +70,8 @@ void drawCylinder(float radius, float height, int slices) {
 
 
 float cam_alpha = 0, cam_beta = 0;
+float px = 0, py = 0, pz = 8.66, lx = 0, ly = 0, lz = 0;
+bool explorer = true;
 
 void renderScene(void) {
 
@@ -77,9 +80,8 @@ void renderScene(void) {
 
 	// set the camera
 	glLoadIdentity();
-	float px = 8.66 * cos(cam_beta) * sin(cam_alpha), py = 8.66 * sin(cam_beta), pz = 8.66 * cos(cam_alpha) * cos(cam_beta);
 	gluLookAt(px,py,pz, 
-		      0.0,0.0,0.0,
+		      lx,ly,lz,
 			  0.0f,1.0f,0.0f);
 
 	glBegin(GL_LINES);
@@ -109,49 +111,101 @@ void processKeys(unsigned char c, int xx, int yy) {
 
 // put code to process regular keys in here
 	switch(c)
-		{
-			case '+':
-				slices++;
-				break;
-			case '-':
-				slices--;
-				break;
-			case 'f':
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				break;
-			case 'l':
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				break;
-		}
+	{
+		case '+':
+			slices++;
+			break;
+		case '-':
+			slices--;
+			break;
+		case 'f':
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			break;
+		case 'l':
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			break;
+		case '1':
+			explorer = true;
+			cam_alpha = 0, cam_beta = 0;
+			px = 0, py = 0, pz = 8.66;
+			lx = 0, ly = 0, lz = 0;
+			break;
+		case '2':
+			explorer = false;
+			cam_alpha = (5 * M_PI ) / 4, cam_beta = 0;
+			px = 5, py = 1, pz = 5;
+			lx = px + sin(cam_alpha);
+			ly = 1;
+			lz = pz + cos(cam_alpha);
+			break;
+	}
+
+	glutPostRedisplay();
+
+}
+
+void processSpecialKeysFPS(int key)
+{
+	switch(key)
+	{
+		case GLUT_KEY_UP:
+			px = lx;
+			pz = lz;
+			break;
+		case GLUT_KEY_DOWN:
+			px = px + (px - lx);
+			pz = pz + (pz - lz);
+			break;
+		case GLUT_KEY_LEFT:
+			cam_alpha += 0.1;
+			break;
+		case GLUT_KEY_RIGHT:
+			cam_alpha -= 0.1;
+			break;
+		default:
+			break;
+	}
+
+	lx = px + sin(cam_alpha);
+	lz = pz + cos(cam_alpha);
+}
 
 
-		glutPostRedisplay();
+void processSpecialKeysExplorer(int key)
+{
+	switch (key)
+	{
+		case GLUT_KEY_UP:
+			if(cam_beta < 1.5)
+				cam_beta += 0.1;
+			break;
+		case GLUT_KEY_DOWN:
+			if(cam_beta > -1.5)
+				cam_beta -= 0.1;
+			break;
+		case GLUT_KEY_LEFT:
+			cam_alpha -= 0.1;
+			break;
+		case GLUT_KEY_RIGHT:
+			cam_alpha += 0.1;
+			break;
+		default:
+			break;
+	}
 
+	px = 8.66 * cos(cam_beta) * sin(cam_alpha);
+	py = 8.66 * sin(cam_beta);
+	pz = 8.66 * cos(cam_alpha) * cos(cam_beta);
 }
 
 
 void processSpecialKeys(int key, int xx, int yy) {
 
 // put code to process special keys in here
-	switch (key)
-	{
-	case GLUT_KEY_UP:
-		if(cam_beta < 1.5)
-			cam_beta += 0.1;
-		break;
-	case GLUT_KEY_DOWN:
-		if(cam_beta > -1.5)
-			cam_beta -= 0.1;
-		break;
-	case GLUT_KEY_LEFT:
-		cam_alpha -= 0.1;
-		break;
-	case GLUT_KEY_RIGHT:
-		cam_alpha += 0.1;
-		break;
-	default:
-		break;
-	}
+	if (explorer)
+		processSpecialKeysExplorer(key);
+	else
+		processSpecialKeysFPS(key);
 
 	glutPostRedisplay();
 }
