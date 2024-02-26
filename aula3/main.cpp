@@ -39,32 +39,32 @@ void changeSize(int w, int h) {
 void drawCylinder(float radius, float height, int slices) {
 	glColor3f(1,1,1);
 	float alpha = 2 * M_PI / slices;
-	glBegin(GL_TRIANGLES);
-
-		for(int i = 0; i < slices; i++)
+	glColor3f(1,0,0);
+	glBegin(GL_TRIANGLE_FAN);
+		glVertex3d(0,0,0);
+		for(int i = 0; i <= slices; i++)
 		{
 			float alpha_now = i * alpha;
-			glColor3f(1,0,0);
-			glVertex3d(0,0,0);
-			glVertex3d(sin(alpha_now + alpha) * radius, 0, cos(alpha_now + alpha) * radius);
 			glVertex3d(sin(alpha_now) * radius, 0, cos(alpha_now) * radius);
-
-			glVertex3d(0,height,0);
-			glVertex3d(sin(alpha_now) * radius, height, cos(alpha_now) * radius);
-			glVertex3d(sin(alpha_now + alpha) * radius, height, cos(alpha_now + alpha) * radius);
-
-			glColor3f(0,1,0);
-			glVertex3d(sin(alpha_now + alpha) * radius, height, cos(alpha_now + alpha) * radius);
-			glVertex3d(sin(alpha_now) * radius, height, cos(alpha_now) * radius);
-			glVertex3d(sin(alpha_now) * radius, 0, cos(alpha_now) * radius);
-
-			glColor3f(0,0.75,0);
-			glVertex3d(sin(alpha_now + alpha) * radius, height, cos(alpha_now + alpha) * radius);
-			glVertex3d(sin(alpha_now) * radius, 0, cos(alpha_now) * radius);
-			glVertex3d(sin(alpha_now + alpha) * radius, 0, cos(alpha_now + alpha) * radius);
-
 		}
 	glEnd();
+	glBegin(GL_TRIANGLE_FAN);
+		glVertex3d(0,height,0);
+		for(int i = 0; i <= slices; i++)
+		{
+			float alpha_now = i * alpha;
+			glVertex3d(sin(alpha_now) * radius, height, cos(alpha_now) * radius);
+		}
+	glEnd();
+	glColor3f(0,1,0);
+	glBegin(GL_TRIANGLE_STRIP);
+		for(int i = 0; i <= slices; i++) {
+			float alpha_now = i * alpha;
+			glVertex3f(sin(alpha_now) * radius, height, cos(alpha_now) * radius);
+			glVertex3f(sin(alpha_now) * radius, 0, cos(alpha_now) * radius);
+		}
+	glEnd();
+	
 
 }
 
