@@ -1,0 +1,3 @@
+/home/luis/MyGit/CG/aula4/build/CMakeFiles/rebuild_cache.dir
+/home/luis/MyGit/CG/aula4/build/CMakeFiles/edit_cache.dir
+/home/luis/MyGit/CG/aula4/build/CMakeFiles/class4.dir
