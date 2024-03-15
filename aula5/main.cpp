@@ -110,33 +110,39 @@ void drawTorus () {
 
 void drawCowboys(int cowboys)
 {
-	int step = 360 / cowboys;
-	glColor3f(0.0, 0.0, 1.0);
-	glPushMatrix();
-	glTranslatef(0, 1, 0);
-	auto now = std::chrono::system_clock::now();
-	auto time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
-	for (int i = 0; i < cowboys; i++)
-	{
-		glPushMatrix();
-		glRotatef((i * step + (time_ms.count())) % 360, 0, 1, 0);
-		glTranslatef(5, 0, 0);
-		glutSolidTeapot(1);
-		glPopMatrix();
-	}
-	glPopMatrix();
+    float step = 360 / float(cowboys);
+    glColor3f(0.0, 0.0, 1.0);
+    glPushMatrix();
+    glTranslatef(0, 1, 0);
+    auto now = std::chrono::system_clock::now();
+    auto time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    float rotationAngle = (time_ms.count() / 10) % 360;
+    
+    for (int i = 0; i < cowboys; i++)
+    {
+        glPushMatrix();
+        glRotatef((i * step) + rotationAngle, 0, 1, 0);
+        glTranslatef(5, 0, 0);
+        glutSolidTeapot(1);
+        glPopMatrix();
+    }
+    glPopMatrix();
 }
+
 
 void drawAttackers(int attackers)
 {
-	int step = 360 / attackers;
+	float step = 360 / float(attackers);
 	glColor3f(1.0, 0.0, 0.0);
 	glPushMatrix();
 	glTranslatef(0, 1.25, 0);
+	auto now = std::chrono::system_clock::now();
+    auto time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    float rotationAngle = (time_ms.count() / 20) % 360; 
 	for (int i = 0; i < attackers; i++)
 	{
 		glPushMatrix();
-		glRotatef(i * step, 0, 1, 0);
+		glRotatef((i * step) - rotationAngle, 0, 1, 0);
 		glTranslatef(0, 0, 25);
 		glutSolidTeapot(1.25);
 		glPopMatrix();
