@@ -22,9 +22,12 @@ int startX, startY, tracking = 0;
 
 int alpha = 0, beta = 45, r = 50;
 
-int largura;
+int altura, largura;
 
-GLuint buffer[1];
+float halfW;
+float halfH;
+
+GLuint* vertices;
 GLuint verticeCount;
 
 void changeSize(int w, int h) {
@@ -56,11 +59,11 @@ void changeSize(int w, int h) {
 void drawTerrain() {
 
     // colocar aqui o código de desnho do terreno usando VBOs com TRIANGLE_STRIPS
-	glBindBuffer(GL_ARRAY_BUFFER, buffer[0]);
-	glVertexPointer(3, GL_FLOAT, 0, 0);
-	int step = (largura * 2) + 2;
-	for(int i = 0; i < largura; i++) {
-		glDrawArrays(GL_TRIANGLE_STRIP, i * step, step);
+	for(int i = 0; i < altura -1; i++) {
+		glBindBuffer(GL_ARRAY_BUFFER, vertices[i]);
+		glVertexPointer(3, GL_FLOAT, 0, 0);
+
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, verticeCount);
 	}
 
 }
@@ -71,16 +74,16 @@ void drawAxis()
 	glBegin(GL_LINES);
 		// X axis in red
 		glColor3f(1.0f, 0.0f, 0.0f);
-		glVertex3f(-100.0f, 0.0f, 0.0f);
-		glVertex3f( 100.0f, 0.0f, 0.0f);
+		glVertex3f(-halfH, 0.0f, 0.0f);
+		glVertex3f( halfH, 0.0f, 0.0f);
 		// Y Axis in Green
 		glColor3f(0.0f, 1.0f, 0.0f);
-		glVertex3f(0.0f, -100.0f, 0.0f);
-		glVertex3f(0.0f, 100.0f, 0.0f);
+		glVertex3f(0.0f, -halfH, 0.0f);
+		glVertex3f(0.0f, halfH, 0.0f);
 		// Z Axis in Blue
 		glColor3f(0.0f, 0.0f, 1.0f);
-		glVertex3f(0.0f, 0.0f, -100.0f);
-		glVertex3f(0.0f, 0.0f, 100.0f);
+		glVertex3f(0.0f, 0.0f, -halfH);
+		glVertex3f(0.0f, 0.0f, halfH);
 	glEnd();
 }
 
@@ -99,10 +102,7 @@ void renderScene(void) {
 
 	drawAxis();
 	glColor3f(1.0f, 1.0f, 1.0f);
-	glPushMatrix();
-		glTranslatef(-100, 0, -100);
 		drawTerrain();
-	glPopMatrix();
 
 	// just so that it renders something before the terrain is built
 	// to erase when the terrain is ready
@@ -189,12 +189,9 @@ void processMouseMotion(int xx, int yy) {
 
 
 float h (int i, int j, unsigned char *imageData) {
-	/*
-		Algo errado aqui. Nos percorremos o i de 0 a 256 no entanto supostamente
-		imageData tem de 0 a 255 colunas.
-	*/
-	float ratio = 50 / float(256);
-	return ratio * imageData[i * largura + j];
+
+	double x = imageData[i * largura + j];
+	return x / 255 * 150;
 
 }
 
@@ -220,28 +217,32 @@ void init() {
 	// imageData is a LINEAR array with the pixel values
 	imageData = ilGetData();
 
-// 	Build the vertex arrays
-	std::vector<float> v;
-	largura = tw;
-	float step = 200 / float(tw);
-	for(int y = 0; y < th; y++) {
-		for(int x = 0; x <= tw; x++) {
-			v.push_back(x * step);
-			v.push_back(h(x, y, imageData));
-			v.push_back(y * step);
+	vertices = (GLuint*)malloc(sizeof(GLuint) * th-1);
 
-			v.push_back(x * step);
-			v.push_back(h(x, y + 1, imageData));
-			v.push_back((y + 1) * step);
+	glGenBuffers(th-1, vertices);
+// 	Build the vertex arrays
+	altura = th;
+	largura = tw;
+
+	halfW = tw / 2;
+	halfH = th / 2;
+
+	for(int y = 0; y < th - 1; y++) {
+		std::vector<float> v;
+		for(int x = 0; x < tw; x++) {
+			v.push_back(y - halfH);
+			v.push_back(h(y, x, imageData));
+			v.push_back(x - halfW);
+
+			v.push_back(y + 1 - halfH);
+			v.push_back(h(y+1, x, imageData));
+			v.push_back(x - halfW);
 			
 		}
+		glBindBuffer(GL_ARRAY_BUFFER, vertices[y]);
+		glBufferData(GL_ARRAY_BUFFER, v.size() * sizeof(float), v.data(), GL_STATIC_DRAW);
 	}
-
-	// create buffer
-	glGenBuffers(1, buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer[0]);
-	glBufferData(GL_ARRAY_BUFFER, v.size() * sizeof(float), &v[0], GL_STATIC_DRAW);
-	verticeCount = v.size();
+	verticeCount = 2 * tw;
 	
 // 	OpenGL settings
 	glEnable(GL_DEPTH_TEST);
