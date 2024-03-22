@@ -145,7 +145,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=class6
+CMAKE_PROJECT_NAME:STATIC=class7
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/usr/bin/ranlib
@@ -283,6 +283,12 @@ class6_BINARY_DIR:STATIC=/home/luis/MyGit/CG/aula7/build
 
 //Value Computed by CMake
 class6_SOURCE_DIR:STATIC=/home/luis/MyGit/CG/aula7
+
+//Value Computed by CMake
+class7_BINARY_DIR:STATIC=/home/luis/MyGit/CG/aula7/build
+
+//Value Computed by CMake
+class7_SOURCE_DIR:STATIC=/home/luis/MyGit/CG/aula7
 
 
 ########################

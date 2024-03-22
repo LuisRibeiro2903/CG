@@ -7,6 +7,7 @@
 #include <math.h>
 #include <vector>
 
+#include <chrono>
 #include <IL/il.h>
 
 #ifdef __APPLE__
@@ -24,6 +25,10 @@ int alpha = 0, beta = 45, r = 50;
 
 int altura, largura;
 
+unsigned char *imageData;
+
+int seed = 29112003;
+int r_clareira = 35;
 
 GLuint vertices[2];
 
@@ -51,6 +56,111 @@ void changeSize(int w, int h) {
 	glMatrixMode(GL_MODELVIEW);
 }
 
+
+float h (int i, int j) {
+
+	float scale = (50 / float(255)) * 2;
+	return (imageData[i * largura + j] * scale);
+}
+
+float hf(float px, float pz){
+
+	int x1 = floor(px);
+	int x2 = x1 + 1;
+	int z1 = floor(pz);
+	int z2 = z1 + 1;
+
+	float fz = pz - z1;
+	float fx = px - x1;
+
+	float h_x1_z = h(x1, z1) * (1 - fz) + h(x1, z2) * fz;
+	float h_x2_z = h(x2, z1) * (1 - fz) + h(x2, z2) * fz;
+
+	float height_xz = h_x1_z * (1 - fx) + h_x2_z * fx;
+
+	return height_xz;
+}
+
+void drawTree ()
+{
+	glPushMatrix();
+	glColor3f(0.5,0.35,0.05);
+	glRotatef(-90, 1, 0, 0);
+	glutSolidCone(1, 5, 10, 10);
+	glTranslatef(0, 0, 3);
+	glColor3f(0,1,0);
+	glutSolidCone(2, 5, 10, 10);
+	glPopMatrix();
+}
+
+void drawTrees(int num_trees)
+{
+	srand(seed);
+	int i = 0;
+	while (i < num_trees)
+	{
+		int rand_x = rand() % 255;
+		int rand_z = rand() % 255;
+		if (pow((rand_x - 127.5),2) + pow((rand_z - 127.5),2) > r_clareira * r_clareira)
+		{
+			glPushMatrix();
+			glTranslatef(rand_x, hf(rand_x, rand_z), rand_z);
+			drawTree();
+			glPopMatrix();
+			i++;	
+		}
+	}
+}
+
+void drawTorus () {
+	glPushMatrix();
+	glColor3f(0.922, 0.059, 0.459);
+	glTranslatef(127.5, 2.5, 127.5);
+	glutSolidTorus(0.5, 2, 100, 100);
+	glPopMatrix();
+}
+
+void drawCowboys(int cowboys)
+{
+    float step = 360 / float(cowboys);
+    glColor3f(0.0, 0.0, 1.0);
+    glPushMatrix();
+    glTranslatef(127.5, 1, 127.5);
+    auto now = std::chrono::system_clock::now();
+    auto time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    float rotationAngle = (time_ms.count() / 10) % 360;
+    
+    for (int i = 0; i < cowboys; i++)
+    {
+        glPushMatrix();
+        glRotatef((i * step) + rotationAngle, 0, 1, 0);
+        glTranslatef(5, 0, 0);
+        glutSolidTeapot(1);
+        glPopMatrix();
+    }
+    glPopMatrix();
+}
+
+
+void drawAttackers(int attackers)
+{
+	float step = 360 / float(attackers);
+	glColor3f(1.0, 0.0, 0.0);
+	glPushMatrix();
+	glTranslatef(127.5, 1.25, 127.5);
+	auto now = std::chrono::system_clock::now();
+    auto time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
+    float rotationAngle = (time_ms.count() / 20) % 360; 
+	for (int i = 0; i < attackers; i++)
+	{
+		glPushMatrix();
+		glRotatef((i * step) - rotationAngle, 0, 1, 0);
+		glTranslatef(0, 0, 25);
+		glutSolidTeapot(1.25);
+		glPopMatrix();
+	}
+	glPopMatrix();
+}
 
 
 void drawTerrain() {
@@ -98,14 +208,16 @@ void renderScene(void) {
 			  0.0f,1.0f,0.0f);
 
 	drawAxis();
-	glColor3f(1.0f, 1.0f, 1.0f);
+	glColor3f(0.114, 0.659, 0.114);
 	glPushMatrix();
-		glTranslatef(-largura / 2, 0, -altura / 2);
-		drawTerrain();
+	glTranslatef(-127.5, 0, -127.5);
+	drawTerrain();
+	drawTrees(1000);
+	drawTorus();
+	drawCowboys(10);
+	drawAttackers(10);
 	glPopMatrix();
 
-	// just so that it renders something before the terrain is built
-	// to erase when the terrain is ready
 	
 
 // End of frame
@@ -188,17 +300,12 @@ void processMouseMotion(int xx, int yy) {
 }
 
 
-float h (int i, int j, unsigned char *imageData) {
 
-	float scale = (50 / float(255)) * 2;
-	return (imageData[i * largura + j] * scale);
-}
 
 void init() {
 
 // 	Load the height map "terreno.jpg"
 	unsigned int t, tw, th;
-	unsigned char *imageData;
 	ilInit();
 	ilGenImages(1,&t);
 	ilBindImage(t);
@@ -225,11 +332,11 @@ void init() {
 	for(int y = 0; y < th; y++) {
 		for(int x = 0; x < tw; x++) {
 			v.push_back(y + 1);
-			v.push_back(h(y + 1, x, imageData));
+			v.push_back(h(y + 1, x));
 			v.push_back(x);
 
 			v.push_back(y);
-			v.push_back(h(y, x, imageData));
+			v.push_back(h(y, x));
 			v.push_back(x);
 			
 		}
@@ -241,7 +348,7 @@ void init() {
 	
 // 	OpenGL settings
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 }
 
 
@@ -267,7 +374,7 @@ int main(int argc, char **argv) {
 
 	glewInit();
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	init();	
 
 // enter GLUT's main cycle
