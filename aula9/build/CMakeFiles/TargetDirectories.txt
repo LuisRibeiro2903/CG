@@ -1,3 +1,0 @@
-/home/luis/MyGit/CG/aula9/build/CMakeFiles/rebuild_cache.dir
-/home/luis/MyGit/CG/aula9/build/CMakeFiles/edit_cache.dir
-/home/luis/MyGit/CG/aula9/build/CMakeFiles/class9.dir

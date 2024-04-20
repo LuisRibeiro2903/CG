@@ -1,3 +1,0 @@
-/home/luis/MyGit/CG/aula10/build/CMakeFiles/rebuild_cache.dir
-/home/luis/MyGit/CG/aula10/build/CMakeFiles/edit_cache.dir
-/home/luis/MyGit/CG/aula10/build/CMakeFiles/class10.dir
